@@ -8,6 +8,7 @@ import (
 
 	"github.com/dihedron/go-taskdep/tasks"
 	"github.com/fako1024/topo"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var items = map[string]tasks.Task{
@@ -50,8 +51,42 @@ var items = map[string]tasks.Task{
 }
 
 func main() {
-	// TODO: start working on this
+	var err error
 
+	if len(os.Args) > 1 {
+		if os.Args[1] == "init" {
+			task := tasks.Task{
+				ID: "task-id-1",
+				Dependencies: []string{
+					"list of IDs of tasks on which it depends, e.g.:",
+					"task-id-2",
+					"task-id-3",
+					"leave empty or omit if there are no dependencies",
+				},
+				Instructions: []string{
+					"list of one or more scripts to execute, such as:",
+					"/opt/my-app/deploy1.sh",
+					"/opt/my-app/deploy2.sh",
+				},
+			}
+			var data []byte
+			if len(os.Args) > 2 && os.Args[2] == "--yaml" {
+				data, err = yaml.Marshal(task)
+			} else {
+				data, err = json.MarshalIndent(task, "", "  ")
+			}
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(string(data))
+			os.Exit(0)
+		} else if os.Args[1] == "validate" {
+			fmt.Printf("TODO: validate\n")
+			os.Exit(0)
+		}
+	}
+
+	// TODO: start working on this
 	js, err := json.MarshalIndent(items, "", "  ")
 	if err != nil {
 		log.Fatal(err)
@@ -113,29 +148,4 @@ func main() {
 	}
 
 	os.Exit(0)
-
-	/*
-		// Getter function to convert original elements to a generic type
-		getter := func(i int) topo.Type {
-			return stringsToSort[i]
-		}
-
-		// Setter function to restore the original type of the data
-		setter := func(i int, val topo.Type) {
-			stringsToSort[i] = val.(string)
-		}
-
-		// Perform topological sort
-		if err := topo.Sort(stringsToSort, stringDependencies, getter, setter); err != nil {
-			fmt.Printf("Error performing topological sort on slice of strings: %s\n", err)
-			os.Exit(1)
-		}
-
-		// Print resulting Slice in order
-		fmt.Println("Sorted list of strings:", stringsToSort)
-		fmt.Println("The following dependencies were taken into account:")
-		for _, dep := range stringDependencies {
-			fmt.Println(dep)
-		}
-	*/
 }
